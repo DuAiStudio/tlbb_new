@@ -11,6 +11,7 @@ add_executable(sharememory64
     src/db_access.cpp
     src/logger.cpp
     src/odbc_interface.cpp
+    src/share_mem_linux.cpp
     src/share_memory.cpp
 )
 

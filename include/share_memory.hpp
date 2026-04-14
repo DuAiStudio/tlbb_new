@@ -2,6 +2,7 @@
 
 #include "config.hpp"
 #include "odbc_interface.hpp"
+#include "share_mem_linux.hpp"
 #include "types.hpp"
 
 #include <atomic>
@@ -40,4 +41,6 @@ private:
     std::vector<std::pair<ShareMemType, std::unique_ptr<ISmuLogicManager>>> managers_;
     std::vector<std::uint32_t> managerIntervalsMs_;
     std::vector<std::uint32_t> managerElapsedMs_;
+    /// Linux SysV SHM segments (see `tlbb2007/Common/ShareMemAPI.cpp` __LINUX__).
+    std::vector<std::unique_ptr<ShareMemLinux>> shmRegions_;
 };

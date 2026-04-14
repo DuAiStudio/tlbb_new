@@ -946,13 +946,35 @@ bool ShareMemoryService::init(const Config& config) {
         ",DB::ZoneID=" + std::to_string(dbZoneId) + "...Compare");
     Logger::instance().logShare("CheckWorldIDZoneID()...OK");
 
+    shmRegions_.clear();
+    shmRegions_.reserve(managers_.size());
+
     for (std::size_t i = 0; i < managers_.size(); ++i) {
         const auto& smu = smus[i];
         auto& mgr = managers_[i].second;
         const std::uint64_t sz = attachSizeBytes(smu.type, smu.poolSize);
         const std::string szStr = std::to_string(sz);
+
+        auto shm = std::make_unique<ShareMemLinux>();
+        bool openFail = false;
+        bool created = false;
+        if (!shm->attachOrCreate(static_cast<std::uint32_t>(smu.key), static_cast<std::size_t>(sz), openFail, created)) {
+            Logger::instance().logShare("Map ShareMem Error SM_KET=" + std::to_string(smu.key));
+            return false;
+        }
+#if defined(__linux__)
+        if (openFail) {
+            Logger::instance().logShare("Attach ShareMem Error SM_KET=" + std::to_string(smu.key));
+        }
+        if (created) {
+            Logger::instance().logShare("Create ShareMem Ok SM_KET = " + std::to_string(smu.key));
+        }
+#endif
         Logger::instance().logShare("Attach ShareMem... SM_KET=" + std::to_string(smu.key) + " Size=" + szStr + "," + szStr);
         Logger::instance().logShare("Attach ShareMem OK! SM_KET=" + std::to_string(smu.key) + " Size=" + szStr + "," + szStr);
+
+        shmRegions_.push_back(std::move(shm));
+
         if (!mgr->init(smu)) {
             return false;
         }
