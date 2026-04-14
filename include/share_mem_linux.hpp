@@ -3,12 +3,19 @@
 #include <cstddef>
 #include <cstdint>
 
-/// Matches `Common/DB_Struct.h` SMHead layout (32-bit fields; pool sizes fit uint32).
+/// B1 / IDA Linux LP64: `tlbb2007/Common/DB_Struct.h` + `BaseType.h` under `__LINUX__` uses
+/// `typedef unsigned long ULONG` and `unsigned long m_Size` — on LP64, **unsigned long is 64-bit**.
+/// So SMHead is **24 bytes** (8 + 8 + 4 + 4 tail padding), not three 32-bit fields.
+/// If your IDA ELF used a different ABI (e.g. ILP32), re-export struct from IDA and adjust here.
 struct SMHead {
-    std::uint32_t m_Key{0};
-    std::uint32_t m_Size{0};
+    std::uint64_t m_Key{0};
+    std::uint64_t m_Size{0};
     std::uint32_t m_HeadVer{0};
 };
+
+#if defined(__linux__)
+static_assert(sizeof(SMHead) == 24U, "SMHead size must match Linux LP64 tlbb2007 layout");
+#endif
 
 /// Linux SysV shared memory, same strategy as `Server/SMU/ShareMemAO.cpp` +
 /// `Common/ShareMemAPI.cpp` (__LINUX__): OpenShareMem then CreateShareMem if needed

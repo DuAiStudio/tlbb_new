@@ -1,0 +1,16 @@
+# One substring per line; all must appear in ShareMemory_*.log after a successful cold start.
+# Lines starting with # are ignored.
+(###) main...
+ShareMemory Start...
+Start Read Config Files...
+Read Config Files...OK!
+Start New Managers...
+new ShareDBManager ...OK
+Start new SMUObj Count=
+New Managers...OK!
+Start Init Managers...
+g_pDBManager->Init()...OK
+Config::WorldID=
+CheckWorldIDZoneID()...OK
+Init Managers...OK!
+Loop...Start

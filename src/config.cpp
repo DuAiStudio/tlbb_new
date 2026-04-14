@@ -250,7 +250,8 @@ bool Config::load(const std::string& filePath) {
         d.keyIndex = i;
         d.key = parseUInt64Def(kv, "sharemem.key" + std::to_string(i), 0);
         d.intervalMs = static_cast<std::uint32_t>(parseIntDef(kv, "sharemem.interval" + std::to_string(i), 0));
-        d.poolSize = defaultPoolSize(mapped);
+        const int poolOverride = parseIntDef(kv, "sharemem.poolsize" + std::to_string(i), 0);
+        d.poolSize = poolOverride > 0 ? static_cast<std::uint32_t>(poolOverride) : defaultPoolSize(mapped);
         d.name = typeNameFromCode(typeCode);
         data_.shareMemObjects.push_back(d);
     }
