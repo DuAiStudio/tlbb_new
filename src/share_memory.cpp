@@ -931,7 +931,19 @@ bool ShareMemoryService::init(const Config& config) {
         return false;
     }
     Logger::instance().logShare("g_pDBManager->Init()...OK");
-    Logger::instance().logShare("Config::WorldID=0,Config::ZoneID=0......DB::WorldID=0,DB::ZoneID=0...Compare");
+    long long dbWorldId = 0;
+    long long dbZoneId = 0;
+    (void)odbc_.queryInt64(
+        "SELECT nVal FROM t_general_set WHERE sKey='WORLD_ID' LIMIT 1",
+        dbWorldId);
+    (void)odbc_.queryInt64(
+        "SELECT nVal FROM t_general_set WHERE sKey='ZONE_ID' LIMIT 1",
+        dbZoneId);
+    Logger::instance().logShare(
+        "Config::WorldID=" + std::to_string(config.data().worldId) +
+        ",Config::ZoneID=" + std::to_string(config.data().zoneId) +
+        "......DB::WorldID=" + std::to_string(dbWorldId) +
+        ",DB::ZoneID=" + std::to_string(dbZoneId) + "...Compare");
     Logger::instance().logShare("CheckWorldIDZoneID()...OK");
 
     for (std::size_t i = 0; i < managers_.size(); ++i) {

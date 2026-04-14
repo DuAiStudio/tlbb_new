@@ -18,6 +18,9 @@ struct ServiceConfig {
     DbConfig db;
     std::string sqlDir;
     int currentServerId{0};
+    /// From Config/WorldInfo.ini (世界 / 区服 ID), used in Config::WorldID / Config::ZoneID compare log.
+    int worldId{0};
+    int zoneId{0};
     bool enableShareMem{true};
 };
 

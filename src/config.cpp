@@ -255,9 +255,28 @@ bool Config::load(const std::string& filePath) {
         data_.shareMemObjects.push_back(d);
     }
 
-    // Load ServerInfo.ini from same config directory and override per-server keys.
     const auto shareMemPath = std::filesystem::path(filePath);
     const auto configDir = shareMemPath.parent_path();
+
+    {
+        std::unordered_map<std::string, std::string> worldKv;
+        if (parseIniFile((configDir / "WorldInfo.ini").string(), worldKv)) {
+            data_.worldId =
+                parseIntDef(worldKv, "world.worldid", parseIntDef(worldKv, "system.worldid", 0));
+            // 服务器 ID：优先 serverid；若无则用 zoneid（日志仍为 Config::ZoneID=… 与原版一致）
+            data_.zoneId = parseIntDef(
+                worldKv,
+                "world.serverid",
+                parseIntDef(
+                    worldKv,
+                    "system.serverid",
+                    parseIntDef(
+                        worldKv,
+                        "world.zoneid",
+                        parseIntDef(worldKv, "system.zoneid", 0))));
+        }
+    }
+
     auto logOnlyReload = [](const std::string& name, bool withDotSlashTopList = false) {
         const std::string prefix = (withDotSlashTopList ? "./Config/" : "");
         Logger::instance().logConfig("Load " + prefix + name + " ...Only OK! ");

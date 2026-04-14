@@ -45,9 +45,10 @@ bool GuildDbRepo::saveAllUsers() {
 }
 
 bool GuildDbRepo::markGeneralSetDirty() {
+    // t_general_set(sKey,nVal); matches tlbbdb.sql + procedure save_general_set(psKey,pnVal).
     return db_.execute(
-        "INSERT INTO t_general_set(gtype, gvalue) VALUES(2, 1) "
-        "ON DUPLICATE KEY UPDATE gvalue=IF(gvalue=0,1,gvalue)");
+        "INSERT INTO t_general_set (sKey, nVal) VALUES ('GUILD_NEW', 1) "
+        "ON DUPLICATE KEY UPDATE nVal = IF(nVal = 0, 1, nVal)");
 }
 
 bool AuctionDbRepo::loadCounts(long long& auctionCount, long long& itemCount, long long& petCount) {
@@ -129,8 +130,8 @@ bool CityDbRepo::saveAll() {
 
 bool CityDbRepo::markGeneralSetDirty() {
     return db_.execute(
-        "INSERT INTO t_general_set(gtype, gvalue) VALUES(3, 1) "
-        "ON DUPLICATE KEY UPDATE gvalue=IF(gvalue=0,1,gvalue)");
+        "INSERT INTO t_general_set (sKey, nVal) VALUES ('CITY_NEW', 1) "
+        "ON DUPLICATE KEY UPDATE nVal = IF(nVal = 0, 1, nVal)");
 }
 
 bool GlobalDataDbRepo::loadCount(long long& outCount) {
@@ -153,8 +154,8 @@ bool PlayerShopDbRepo::saveAll() {
 
 bool PlayerShopDbRepo::markGeneralSetDirty() {
     return db_.execute(
-        "INSERT INTO t_general_set(gtype, gvalue) VALUES(1, 1) "
-        "ON DUPLICATE KEY UPDATE gvalue=IF(gvalue=0,1,gvalue)");
+        "INSERT INTO t_general_set (sKey, nVal) VALUES ('PSHOP_NEW', 1) "
+        "ON DUPLICATE KEY UPDATE nVal = IF(nVal = 0, 1, nVal)");
 }
 
 bool PetProcreateDbRepo::loadCount(long long& outCount) {
