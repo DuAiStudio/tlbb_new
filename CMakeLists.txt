@@ -26,10 +26,16 @@ add_executable(sharememory64
 
 target_include_directories(sharememory64 PRIVATE include)
 
+# Foreground log line: `(###Hurricane###) Server Dev:… ClientVer:…` (override: -DSHAREMEMORY_SERVER_DEV=…)
+set(SHAREMEMORY_SERVER_DEV "1271" CACHE STRING "Logged as Server Dev in Hurricane line (legacy default)")
+set(SHAREMEMORY_CLIENT_VER "533" CACHE STRING "Logged as ClientVer in Hurricane line (legacy default)")
+
 target_compile_definitions(
     sharememory64
     PRIVATE
     SHAREMEMORY64_VERSION="${PROJECT_VERSION}"
+    SHAREMEMORY_SERVER_DEV=${SHAREMEMORY_SERVER_DEV}
+    SHAREMEMORY_CLIENT_VER=${SHAREMEMORY_CLIENT_VER}
 )
 
 find_package(ODBC REQUIRED)

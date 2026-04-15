@@ -50,11 +50,23 @@ void OdbcInterface::disconnect() {
 }
 
 bool OdbcInterface::execute(const std::string& sql) {
+    long long affected = 0;
+    return execute(sql, affected);
+}
+
+bool OdbcInterface::execute(const std::string& sql, long long& affectedRows) {
+    affectedRows = -1;
     SQLHSTMT stmt = SQL_NULL_HSTMT;
     if (!SQL_SUCCEEDED(SQLAllocHandle(SQL_HANDLE_STMT, dbc_, &stmt))) {
         return false;
     }
     const auto rc = SQLExecDirect(stmt, reinterpret_cast<SQLCHAR*>(const_cast<char*>(sql.c_str())), SQL_NTS);
+    if (SQL_SUCCEEDED(rc)) {
+        SQLLEN rows = -1;
+        if (SQL_SUCCEEDED(SQLRowCount(stmt, &rows))) {
+            affectedRows = static_cast<long long>(rows);
+        }
+    }
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     return SQL_SUCCEEDED(rc);
 }
@@ -81,4 +93,30 @@ bool OdbcInterface::queryInt64(const std::string& sql, long long& value) {
     const auto getRc = SQLGetData(stmt, 1, SQL_C_SBIGINT, &value, sizeof(value), &ind);
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     return SQL_SUCCEEDED(getRc) && ind != SQL_NULL_DATA;
+}
+
+bool OdbcInterface::beginTransaction() {
+    if (!connected_ || inTransaction_) return false;
+    const auto rc = SQLSetConnectAttr(dbc_, SQL_ATTR_AUTOCOMMIT, reinterpret_cast<SQLPOINTER>(SQL_AUTOCOMMIT_OFF), 0);
+    if (!SQL_SUCCEEDED(rc)) {
+        return false;
+    }
+    inTransaction_ = true;
+    return true;
+}
+
+bool OdbcInterface::commitTransaction() {
+    if (!connected_ || !inTransaction_) return false;
+    const auto rcCommit = SQLEndTran(SQL_HANDLE_DBC, dbc_, SQL_COMMIT);
+    const auto rcAuto = SQLSetConnectAttr(dbc_, SQL_ATTR_AUTOCOMMIT, reinterpret_cast<SQLPOINTER>(SQL_AUTOCOMMIT_ON), 0);
+    inTransaction_ = false;
+    return SQL_SUCCEEDED(rcCommit) && SQL_SUCCEEDED(rcAuto);
+}
+
+bool OdbcInterface::rollbackTransaction() {
+    if (!connected_ || !inTransaction_) return false;
+    const auto rcRollback = SQLEndTran(SQL_HANDLE_DBC, dbc_, SQL_ROLLBACK);
+    const auto rcAuto = SQLSetConnectAttr(dbc_, SQL_ATTR_AUTOCOMMIT, reinterpret_cast<SQLPOINTER>(SQL_AUTOCOMMIT_ON), 0);
+    inTransaction_ = false;
+    return SQL_SUCCEEDED(rcRollback) && SQL_SUCCEEDED(rcAuto);
 }

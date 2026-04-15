@@ -21,6 +21,7 @@ void logShmErr(const char* what, key_t ipcKey, std::size_t totalBytes) {
 }  // namespace
 
 void ShareMemLinux::unmapOnly() {
+    // B3: Detach only. Never `shmctl(IPC_RMID)` here — segments stay alive for World/Login.
     if (header_ != nullptr && header_ != reinterpret_cast<void*>(-1)) {
         shmdt(header_);
     }
@@ -30,6 +31,19 @@ void ShareMemLinux::unmapOnly() {
 }
 
 ShareMemLinux::~ShareMemLinux() {
+    unmapOnly();
+}
+
+void ShareMemLinux::detach(bool removeSegment) {
+    if (removeSegment && shmid_ >= 0) {
+        if (shmctl(shmid_, IPC_RMID, nullptr) == 0) {
+            Logger::instance().logShare("ShareMem IPC_RMID ok shmid=" + std::to_string(shmid_));
+        } else {
+            Logger::instance().logShare(
+                "ShareMem IPC_RMID failed shmid=" + std::to_string(shmid_) + " errno=" +
+                std::to_string(errno) + " (" + std::strerror(errno) + ")");
+        }
+    }
     unmapOnly();
 }
 

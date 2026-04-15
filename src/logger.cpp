@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
+#include <iostream>
 #include <mutex>
 #include <sstream>
 #include <thread>
@@ -65,9 +66,10 @@ Logger& Logger::instance() {
     return inst;
 }
 
-bool Logger::init(const std::string& baseDir) {
+bool Logger::init(const std::string& baseDir, bool mirrorToStdout) {
     std::lock_guard<std::mutex> lk(g_logMutex);
     baseDir_ = baseDir;
+    mirrorToStdout_ = mirrorToStdout;
     std::filesystem::create_directories(baseDir_);
     sharePath_ = buildLogPath("ShareMemory");
     configPath_ = buildLogPath("Config");
@@ -79,24 +81,30 @@ bool Logger::init(const std::string& baseDir) {
 
 void Logger::logShare(const std::string& message) {
     if (!initialized_) return;
-    logToFile(sharePath_, message);
+    logLine(sharePath_, message, mirrorToStdout_);
 }
 
 void Logger::logConfig(const std::string& message) {
     if (!initialized_) return;
-    logToFile(configPath_, message);
+    logLine(configPath_, message, mirrorToStdout_);
 }
 
 void Logger::logDebug(const std::string& message) {
     if (!initialized_) return;
-    logToFile(debugPath_, message);
+    logLine(debugPath_, message, false);
 }
 
-void Logger::logToFile(const std::string& filePath, const std::string& message) {
+void Logger::logLine(const std::string& filePath, const std::string& message, bool mirrorStdout) {
     std::lock_guard<std::mutex> lk(g_logMutex);
+    const std::string line = formatLine(message);
     std::ofstream out(filePath, std::ios::app);
-    if (!out.is_open()) return;
-    out << formatLine(message) << '\n';
+    if (out.is_open()) {
+        out << line << '\n';
+    }
+    if (mirrorStdout) {
+        std::cout << line << '\n';
+        std::cout.flush();
+    }
 }
 
 std::string Logger::formatLine(const std::string& message) const {

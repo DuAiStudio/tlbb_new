@@ -36,6 +36,8 @@ public:
         bool& attachOpenFailed,
         bool& createdNew
     );
+    /// B4: Detach mapping; optionally mark segment removed via IPC_RMID.
+    void detach(bool removeSegment);
 
     [[nodiscard]] void* headerPtr() const { return header_; }
     [[nodiscard]] std::size_t byteSize() const { return size_; }

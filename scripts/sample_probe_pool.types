@@ -1,0 +1,17 @@
+# Runtime POOL-PROBE type override template.
+# Copy to runtime working directory as: probe_pool.types
+# Then create probe_pool.cmd to trigger one-shot probe.
+#
+# Rules:
+# - Comma-separated or one token per line
+# - Case-insensitive
+# - Supports comments with # or ;
+# - "all" means probe all types
+
+# --- Recommended quick pilot (E2 types) ---
+GlobalData,ItemSerial
+
+# --- Other examples ---
+# all
+# Human,Guild,Mail
+# City,TopList,Auction

@@ -8,8 +8,16 @@ public:
 
     bool loadCount(long long& outCount);
     bool saveAll();
+    bool saveAllWithRows(long long& affectedRows);
+    bool saveNormalWithRows(long long& affectedRows);
     bool saveLogoutFocused();
+    bool saveLogoutFocusedWithRows(long long& affectedRows);
     bool saveAllExtra();
+    bool saveAllExtraWithRows(long long& affectedRows);
+    bool saveNormalExtraWithRows(long long& affectedRows);
+    bool saveAllTransactional(long long& affectedMain, long long& affectedExtra);
+    bool saveNormalTransactional(long long& affectedMain, long long& affectedExtra);
+    bool saveLogoutFocusedTransactional(long long& affectedMain, long long& affectedExtra);
 
 private:
     OdbcInterface& db_;
@@ -22,6 +30,9 @@ public:
     bool loadCount(long long& outCount);
     bool saveAll();
     bool saveAllUsers();
+    bool saveAllWithRows(long long& affectedRows);
+    bool saveAllUsersWithRows(long long& affectedRows);
+    bool saveAllTransactional(long long& affectedGuild, long long& affectedUser);
     bool markGeneralSetDirty();
 
 private:
@@ -35,6 +46,9 @@ public:
     bool loadCounts(long long& auctionCount, long long& itemCount, long long& petCount);
     bool saveAll();
     bool saveAllUnits();
+    bool saveAllWithRows(long long& affectedRows);
+    bool saveAllUnitsWithRows(long long& affectedRows);
+    bool saveAllTransactional(long long& affectedAuction, long long& affectedItem, long long& affectedPet);
 
 private:
     OdbcInterface& db_;
@@ -46,6 +60,7 @@ public:
 
     bool loadCount(long long& outCount);
     bool saveAll();
+    bool saveAllWithRows(long long& affectedRows);
 
 private:
     OdbcInterface& db_;
@@ -58,6 +73,9 @@ public:
     bool loadCount(long long& outCount);
     bool saveAll();
     bool saveAllByType();
+    bool saveAllWithRows(long long& affectedRows);
+    bool saveAllByTypeWithRows(long long& affectedRows);
+    bool saveAllTransactional(long long& affectedAid, long long& affectedType);
 
 private:
     OdbcInterface& db_;
@@ -69,6 +87,8 @@ public:
 
     bool loadCounts(long long& shopCount, long long& itemCount);
     bool saveAll();
+    bool saveAllWithRows(long long& affectedRows);
+    bool saveAllTransactional(long long& affectedItem, long long& affectedShop);
 
 private:
     OdbcInterface& db_;
@@ -79,8 +99,10 @@ public:
     explicit ItemSerialDbRepo(OdbcInterface& db) : db_(db) {}
 
     bool loadCount(long long& outCount);
-    bool loadMaxSerial(long long& outMaxSerial);
+    bool loadMaxSerial(long long& outMaxSerial, int serverId);
+    bool ensureServerRow(int serverId, long long smKey, long long& affectedRows);
     bool saveAll();
+    bool saveAllWithRows(long long& affectedRows, int serverId);
 
 private:
     OdbcInterface& db_;
@@ -92,6 +114,8 @@ public:
 
     bool loadCount(long long& outCount);
     bool saveAll();
+    bool saveAllWithRows(long long& affectedRows);
+    bool saveAllTransactional(long long& affectedCity);
     bool markGeneralSetDirty();
 
 private:
@@ -104,6 +128,8 @@ public:
 
     bool loadCount(long long& outCount);
     bool saveAll();
+    bool saveAllWithRows(long long& affectedRows);
+    bool saveAllTransactional(long long& affectedGlobal);
 
 private:
     OdbcInterface& db_;
@@ -115,6 +141,8 @@ public:
 
     bool loadCounts(long long& shopCount, long long& stallCount);
     bool saveAll();
+    bool saveAllWithRows(long long& affectedRows);
+    bool saveAllTransactional(long long& affectedShop, long long& affectedStall);
     bool markGeneralSetDirty();
 
 private:
